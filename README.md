@@ -1,32 +1,57 @@
-# Unikorn Phone Search
+<div align="center">
+  <img src="icon128.png" alt="Unikorn Logo" width="100"/>
+  <h1>Unikorn Phone Search</h1>
+  <p><strong>A high-performance Chrome Extension that seamlessly bridges arbitrary web dashboards to the Unikorn CRM.</strong></p>
+  
+  <a href="https://chromewebstore.google.com/detail/niekbojhocofmfelaoogemikjanidajl">
+    <img src="https://img.shields.io/chrome-web-store/v/niekbojhocofmfelaoogemikjanidajl?label=Chrome%20Web%20Store&color=blue&style=for-the-badge" alt="Chrome Web Store Extension">
+  </a>
+</div>
 
-**Unikorn Phone Search** is a powerful, lightweight Google Chrome Extension built exclusively for the Unikorn CRM. It automatically scans external Angular-based dashboards and natively links phone numbers into 1-click Unikorn searches. 
+<br/>
 
-## 🚀 Key Features
+**Unikorn Phone Search** radically accelerates clinical, support, and outbound workflows. It securely scans text natively rendered on any external web application (e.g. Medifyr, support dashboards, or lead boards) and instantly injects a clickable Unikorn button beside any valid phone number it isolates. Simply clicking the icon instantly opens a highly targeted global Unikorn search.
 
-- **Dynamic SPA Detection**: Utilizes a robust interval sweep to seamlessly track rapidly changing Angular Single Page Applications containing the `mat-subtitle` class, ensuring the links never silently break during component lifecycles.
-- **Smart Country Code Stripping**: Employs Regex to intelligently isolate the `+` character and Country Code payloads (e.g., `+967`) out of phone strings, guaranteeing the query exactly matches the local database numbers.
-- **Singular Tab Recycling**: Prevents intense window clutter! Every Unikorn injection relies on a named window DOM target (`target="unikorn_search_tab"`), meaning clicking a new phone number cleanly recycles the previous CRM tab to preserve system memory.
-- **Premium Material UI**: Injects a custom, responsive, drop-shadowed button directly adjacent to the parsed figures, featuring the 512px Unikorn Logo floating inline for immediate visibility.
-- **CSS Trap Evasion**: The Javascript injection physically binds the anchor element outside the `<p>` container tags as a sibling node, perfectly bypassing Angular's strict `overflow: hidden` visibility blocks natively.
+## 🚀 Features
 
-## 🛠 Installation (Developer Mode)
+- **Opt-In Domain Security:** The extension is mathematically hardcoded to remain **100% disabled** globally. You manually whitelist the exact private domains you wish the crawler to analyze using the Extension Popup UI.
+- **DOM TreeWalker Core:** Achieves supreme JavaScript performance by walking the internal Node Trees to locate digits instead of slow `querySelector` regex loops.
+- **HTML5 Layout Protection:** Highly engineered injection algorithms (`span onclick`) specifically bypass native HTML `<a>` nesting limits. The UI seamlessly integrates directly into third-party Tailwind, Bootstrap, and Flexbox layouts without rupturing spacing margins or shattering CSS grids.
+- **Singular Tab Recycling:** Prevents intensive desktop window clutter by universally forcing all 1-Click events to cleanly overwrite exactly one persistent 'Unikorn Search' target tab.
+- **Hidden `tel:` Interception:** Detects generalized text (like *"Click to Call"*) by explicitly scanning HTML properties for masked telephony routing protocols globally.
 
-To install this dynamically from your local filesystem during testing:
+---
 
-1. Copy or clone this directory physically onto your Mac.
-2. Open Google Chrome and navigate your URL bar to `chrome://extensions/`.
-3. In the top right corner, flip the **Developer Mode** toggle to ON.
-4. Click the **Load Unpacked** button in the top left corner.
-5. Select the entire `/unikorn-phone-search` directory. The extension is now instantly live!
+## 🛠 Installation
 
-## 📦 Production Architecture (Chrome Web Store)
+### Option A: Install from Chrome Web Store (Recommended)
+1. Navigate directly to the official Google listing: **[Unikorn Phone Search - Chrome Web Store](https://chromewebstore.google.com/detail/niekbojhocofmfelaoogemikjanidajl)**.
+2. Click **Add to Chrome**.
+3. Pin the extension to your toolbar. When you visit a domain that contains leads (like Medifyr), click the Unikorn Icon and toggle **Enable on this Site**. Done!
 
-This repository is formally engineered to pass the stringent Google Chrome Marketplace Validation checks out of the box!
+### Option B: Local Developer Mode
+If you wish to fork this repository or run local CSS modifications:
+1. Clone this repository or download the ZIP file.
+2. Open Google Chrome and enter `chrome://extensions/` into the URL bar.
+3. Toggle the **Developer mode** switch in the top right corner.
+4. Click **Load unpacked** and simply select the folder where you cloned this repository.
 
-It implements:
-- Strictly compliant **Manifest V3** (`manifest_version: 3`).
-- Appropriately dimensioned and mathematically resized Icon matrix dependencies (`16x16`, `48x48`, and `128x128`).
-- Formal array encapsulation of the inline `icon.png` via `web_accessible_resources`.
+---
 
-To publish, zip the directory contents into a standard `.zip` archive and deposit it natively into the Google Chrome Web Store Developer Console dashboard. No further compilation is required!
+## 💻 Tech Architecture
+
+The extension achieves cross-site functionality by utilizing Chrome Sync endpoints alongside iterative frontend checks:
+- **`manifest.json`:** Driven by Google's V3 architecture securely limiting script injections strictly through asynchronous user whitelisting.
+- **`content.js`:** The brain of the operation. Contains a robust, dual-pass DOM scanner. Pass 1 iterates all raw text. Pass 2 explicitly filters `href="tel:"` elements. Both pipelines securely build highly-contained Flex geometries so third-party layouts remain structurally identical.
+- **`popup.js` / `popup.html`:** A heavily polished UI interacting synchronously with `chrome.storage.sync` allowing agents to selectively toggle the search engines per domain without manual code configurations. 
+
+---
+
+## 🤝 Contribution Guidelines
+To modify the DOM rules or redesign the icon geometry, open `content.js`, modify your targets, save, and hit the **Refresh 🔄** icon next to the unpackaged payload in `chrome://extensions/`.
+
+### Formatting Constraints (Chrome Guidelines)
+If you actively alter the graphical icons, remember Chrome rigidly expects explicit scaling arrays:
+- `16x16`
+- `48x48`
+- `128x128`
