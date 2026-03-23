@@ -38,7 +38,7 @@ function injectUnikornLinks() {
       link.style.fontWeight = '500';
       link.style.fontFamily = 'system-ui, -apple-system, sans-serif';
       link.style.textDecoration = 'none';
-      link.style.fontSize = '10px';
+      link.style.fontSize = '11px';
       link.style.cursor = 'pointer';
       link.style.display = 'inline-flex';
       link.style.alignItems = 'center';
