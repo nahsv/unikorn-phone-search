@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Unikorn Phone Search",
+  "version": "1.0.0",
+  "description": "Automatically parses phone numbers from the external dashboard and injects one-click Unikorn CRM searches.",
+  "permissions": ["activeTab", "tabs"],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icon.png"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
