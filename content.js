@@ -35,13 +35,60 @@ function updateStatus(data) {
   isExtensionEnabled = master && enabledWhitelist.includes(window.location.hostname);
 }
 
+// Extracted the Button Generator globally so it can be deployed efficiently across standard and anchor passes
+function createUnikornButton(searchQuery) {
+  const link = document.createElement('span');
+  link.title = `Search ${searchQuery} in CRM`;
+  link.dataset.unikornProcessed = 'true';
+  link.dataset.unikornIcon = 'true'; 
+  
+  // Dynamically attach javascript click-receivers natively
+  link.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // Mathematically block parent elements from activating their respective clicks
+    window.open(`https://unikorn.cloud/patients?q=${searchQuery}`, 'unikorn_search_tab');
+  };
+  
+  const iconUrl = chrome.runtime.getURL('icon.png');
+  link.innerHTML = `<img src="${iconUrl}" style="width: 16px; height: 16px; object-fit: contain; display: block;">`;
+  
+  link.style.marginRight = '8px';
+  link.style.cursor = 'pointer';
+  link.style.display = 'inline-flex';
+  link.style.alignItems = 'center';
+  link.style.justifyContent = 'center';
+  link.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
+  link.style.transition = 'all 0.2s ease-in-out';
+  link.style.zIndex = '999999';
+  link.style.position = 'relative'; 
+  link.style.pointerEvents = 'auto'; 
+  link.style.verticalAlign = 'middle';
+  
+  link.onmouseover = function() {
+    this.style.transform = 'translateY(-1px) scale(1.05)';
+    this.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+  };
+  link.onmouseout = function() {
+    this.style.transform = 'translateY(0) scale(1)';
+    this.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
+  };
+  
+  return link;
+}
+
+
 function injectUnikornLinks() {
   if (!isExtensionEnabled) return;
   
+  // ---------------------------------------------------------------------
+  // PASS 1: Global TreeWalker Regex Scanner
+  // ---------------------------------------------------------------------
   const walker = document.createTreeWalker(
     document.body, NodeFilter.SHOW_TEXT, {
       acceptNode: function(node) {
-        if (node.parentElement && node.parentElement.closest('script, style, noscript, button, [data-unikorn-processed="true"]')) {
+        // We explicitly REMOVED 'button' from this rejection array! 
+        // This formally allows the crawler to discover phone digits inside frontend standard buttons!
+        if (node.parentElement && node.parentElement.closest('script, style, noscript, [data-unikorn-processed="true"]')) {
           return NodeFilter.FILTER_REJECT;
         }
         
@@ -74,65 +121,57 @@ function injectUnikornLinks() {
       
       const wrapper = document.createElement('span');
       wrapper.dataset.unikornProcessed = 'true';
-      wrapper.textContent = phoneNode.nodeValue;
+      wrapper.style.display = 'inline-flex';
+      wrapper.style.alignItems = 'center';
+      
       phoneNode.parentNode.replaceChild(wrapper, phoneNode);
       
-      // CRITICAL UPGRADE: Build the clickable node natively as a `<span onclick="">` 
-      // instead of an Anchor <a href=""> tag! HTML strictly forbids nesting links inside links.
-      // If we attempt to inject an anchor next to a phone number already inside a `<a href="tel:">`, the 
-      // browser aggressively destroys the hierarchy, displacing icons visually and breaking click receivers!
-      const link = document.createElement('span');
-      link.title = `Search ${searchQuery} in CRM`;
-      link.dataset.unikornProcessed = 'true';
-      link.dataset.unikornIcon = 'true'; // For global DOM wiping when extension manually disabled
+      const link = createUnikornButton(searchQuery);
       
-      // Dynamically attach javascript click-receivers natively
-      link.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation(); // Mathematically block parent `tel:` anchors from activating their dials
-        window.open(`https://unikorn.cloud/patients?q=${searchQuery}`, 'unikorn_search_tab');
-      };
-      
-      const iconUrl = chrome.runtime.getURL('icon.png');
-      link.innerHTML = `<img src="${iconUrl}" style="width: 16px; height: 16px; object-fit: contain; display: block;">`;
-      
-      link.style.backgroundColor = '#ffffff';
-      link.style.padding = '4px';
-      link.style.borderRadius = '50%';
-      link.style.marginRight = '8px'; // Pad out the exact phone string gap
-      link.style.cursor = 'pointer';
-      link.style.display = 'inline-flex';
-      link.style.alignItems = 'center';
-      link.style.justifyContent = 'center';
-      link.style.border = '1px solid #e2e8f0';
-      link.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
-      link.style.transition = 'all 0.2s ease-in-out';
-      link.style.zIndex = '999999';
-      link.style.position = 'relative'; 
-      link.style.pointerEvents = 'auto'; 
-      link.style.verticalAlign = 'middle';
-      
-      link.onmouseover = function() {
-        this.style.backgroundColor = '#f8fafc';
-        this.style.transform = 'translateY(-1px) scale(1.05)';
-        this.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-        this.style.borderColor = '#cbd5e1';
-      };
-      link.onmouseout = function() {
-        this.style.backgroundColor = '#ffffff';
-        this.style.transform = 'translateY(0) scale(1)';
-        this.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
-        this.style.borderColor = '#e2e8f0';
-      };
-      
-      // Unikorn HTML5 Hack: We can seamlessly safely inject spans completely into forbidden anchors 
-      // without needing complex breakout `closest('a')` geometry that physically separates logos destructively.
-      wrapper.parentNode.insertBefore(link, wrapper);
+      wrapper.appendChild(link);
+      wrapper.appendChild(document.createTextNode(phoneNode.nodeValue));
     }
   });
+
+
+  // ---------------------------------------------------------------------
+  // PASS 2: Explicit Native "tel:" Anchor Extractor
+  // ---------------------------------------------------------------------
+  // This explicitly hooks components displaying generic text (e.g. "Call Us") which completely dodge the Regex!
+  const telLinks = document.querySelectorAll('a[href^="tel:"]:not([data-unikorn-processed="true"])');
+  
+  telLinks.forEach(aTag => {
+    // Failsafe exit to preclude DOM recursion loops
+    if (aTag.closest('[data-unikorn-processed="true"]')) return;
+    
+    let href = aTag.getAttribute('href') || '';
+    // Mathematically slice out prefixes (e.g. tel:// or tel:)
+    let phoneNumber = href.replace(/^tel:(\/\/)?/i, '').trim();
+    if (!phoneNumber) return;
+    
+    let searchQuery = phoneNumber.replace(/\+/g, '').replace(/\s/g, '').replace(/\-/g, '').trim();
+    if (searchQuery.length < 5) return; // Prevent incredibly generic numeric IDs
+    
+    aTag.dataset.unikornProcessed = 'true';
+    
+    // Explicit DOM mutation safely trapping the original anchor inside a 1:1 sibling array
+    const wrapper = document.createElement('span');
+    wrapper.dataset.unikornProcessed = 'true';
+    wrapper.style.display = 'inline-flex';
+    wrapper.style.alignItems = 'center';
+    
+    aTag.parentNode.replaceChild(wrapper, aTag);
+    
+    const link = createUnikornButton(searchQuery);
+    
+    // Inject natively! First the button, then the actual Anchor link!
+    wrapper.appendChild(link);
+    wrapper.appendChild(aTag);
+  });
+  
 }
 
-// 2. Since the external app is Angular (SPA), we deploy a powerful setInterval engine
+// Since the external app is Angular (SPA), we deploy a powerful setInterval engine
 // to automatically sweep the DOM every 1.5 seconds, guaranteeing dynamic components are caught!
 setInterval(() => {
   if (isExtensionEnabled) injectUnikornLinks();
