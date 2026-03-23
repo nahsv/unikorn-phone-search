@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <style>
     body {
-      width: 280px;
-      padding: 16px;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      width: 300px;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       margin: 0;
       background-color: #f8fafc;
       color: #334155;
@@ -15,31 +15,42 @@
     .header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      border-bottom: 1px solid #e2e8f0;
-      padding-bottom: 12px;
+      gap: 12px;
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      padding: 16px 20px;
+      color: white;
     }
     
     .header img {
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
     
     .header h2 {
       margin: 0;
       font-size: 16px;
       font-weight: 600;
-      color: #0f172a;
+      letter-spacing: 0.5px;
+    }
+    
+    .content {
+      padding: 20px;
     }
     
     .setting-group {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 12px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+      transition: all 0.2s ease;
+    }
+    
+    .setting-group:hover {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+      border-color: #cbd5e1;
     }
     
     .setting-row {
@@ -49,24 +60,42 @@
     }
     
     .setting-info h3 {
-      margin: 0 0 4px 0;
+      margin: 0 0 6px 0;
       font-size: 14px;
-      font-weight: 500;
-      color: #1e293b;
+      font-weight: 600;
+      color: #0f172a;
     }
     
     .setting-info p {
       margin: 0;
       font-size: 11px;
       color: #64748b;
+      line-height: 1.4;
     }
     
-    /* Toggle Switch CSS */
+    .host-badge {
+      display: inline-block;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+      font-family: monospace;
+      font-size: 10px;
+      margin-top: 8px;
+      color: #475569;
+      max-width: 170px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    /* Premium Toggle Switch CSS */
     .switch {
       position: relative;
       display: inline-block;
-      width: 40px;
-      height: 22px;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
     }
     
     .switch input {
@@ -80,60 +109,75 @@
       cursor: pointer;
       top: 0; left: 0; right: 0; bottom: 0;
       background-color: #cbd5e1;
-      transition: .3s;
-      border-radius: 34px;
+      transition: .3s cubic-bezier(0.4, 0.0, 0.2, 1);
+      border-radius: 24px;
     }
     
     .slider:before {
       position: absolute;
       content: "";
-      height: 16px;
-      width: 16px;
+      height: 18px;
+      width: 18px;
       left: 3px;
       bottom: 3px;
       background-color: white;
-      transition: .3s;
+      transition: .3s cubic-bezier(0.4, 0.0, 0.2, 1);
       border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
     
     input:checked + .slider {
-      background-color: #2563eb;
+      background-color: #3b82f6;
     }
     
     input:checked + .slider:before {
-      transform: translateX(18px);
+      transform: translateX(20px);
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 10px;
+      color: #94a3b8;
     }
   </style>
 </head>
 <body>
   <div class="header">
     <img src="icon.png" alt="Logo">
-    <h2>Unikorn Phone Search</h2>
+    <h2>Unikorn Search Settings</h2>
   </div>
 
-  <div class="setting-group">
-    <div class="setting-row">
-      <div class="setting-info">
-        <h3>Master Toggle</h3>
-        <p>Enable or disable globally.</p>
+  <div class="content">
+    <div class="setting-group">
+      <div class="setting-row">
+        <div class="setting-info">
+          <h3>Master Engine</h3>
+          <p>Global killswitch for the crawler.</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="master-toggle">
+          <span class="slider"></span>
+        </label>
       </div>
-      <label class="switch">
-        <input type="checkbox" id="master-toggle">
-        <span class="slider"></span>
-      </label>
     </div>
-  </div>
 
-  <div class="setting-group">
-    <div class="setting-row">
-      <div class="setting-info">
-        <h3>Current Website</h3>
-        <p id="domain-label">Whitelist this domain.</p>
+    <div class="setting-group">
+      <div class="setting-row">
+        <div class="setting-info">
+          <h3>Enable on this Site</h3>
+          <p>Inject CRM buttons explicitly here.</p>
+          <div class="host-badge" id="domain-label">...</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="site-toggle">
+          <span class="slider"></span>
+        </label>
       </div>
-      <label class="switch">
-        <input type="checkbox" id="site-toggle">
-        <span class="slider"></span>
-      </label>
+    </div>
+    
+    <div class="footer">
+      Requires page refresh to clean DOM nodes.
     </div>
   </div>
 

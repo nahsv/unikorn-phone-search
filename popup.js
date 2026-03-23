@@ -9,17 +9,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   let url = new URL(tab.url);
   let domain = url.hostname;
   
-  domainLabel.innerText = `Enable on ${domain}`;
+  domainLabel.innerText = domain;
 
-  // Hook into Chrome's unified Sync Storage pipeline to fetch user variables
-  chrome.storage.sync.get(['masterEnabled', 'disabledDomains'], (data) => {
-    // If undefined, default behavior is fully enabled globally
-    let masterEnabled = data.masterEnabled !== false; 
-    let disabledDomains = data.disabledDomains || [];
+  // Hook into Chrome's unified Sync Storage pipeline
+  // BY DEFAULT, IT IS DISABLED GLOBALLY unless the explicit domain Whitelist array contains this target!
+  chrome.storage.sync.get(['masterEnabled', 'enabledDomains'], (data) => {
+    let masterEnabled = data.masterEnabled !== false; // Base Master killswitch Defaults ON
+    let enabledDomains = data.enabledDomains || []; // Site whitelist defaults OFF
     
-    // Inject loaded variables into HTML inputs
+    // Inject loaded variables into HTML inputs formally mapping to Whitelist checks
     masterToggle.checked = masterEnabled;
-    siteToggle.checked = !disabledDomains.includes(domain);
+    siteToggle.checked = enabledDomains.includes(domain);
 
     // Event listener configurations
     masterToggle.addEventListener('change', () => {
@@ -28,13 +28,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     siteToggle.addEventListener('change', () => {
       if (siteToggle.checked) {
-        // Remove the current domain from the blacklist mathematically
-        disabledDomains = disabledDomains.filter(d => d !== domain);
+        // Formally append the secure Domain into the explicitly enabled Whitelist
+        if (!enabledDomains.includes(domain)) enabledDomains.push(domain);
       } else {
-        // Inject the target domain to the strict blacklist securely
-        if (!disabledDomains.includes(domain)) disabledDomains.push(domain);
+        // Scrub the Domain securely off the Whitelist
+        enabledDomains = enabledDomains.filter(d => d !== domain);
       }
-      chrome.storage.sync.set({ disabledDomains: disabledDomains });
+      chrome.storage.sync.set({ enabledDomains: enabledDomains });
     });
   });
 });

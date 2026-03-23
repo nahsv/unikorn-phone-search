@@ -1,7 +1,7 @@
-let isExtensionEnabled = true; // Default Active State
+let isExtensionEnabled = false; // Default FALLBACK Active State is completely disabled
 
 // Safely boot the Chrome Sync Engine globally checking our master GUI toggles
-chrome.storage.sync.get(['masterEnabled', 'disabledDomains'], (data) => {
+chrome.storage.sync.get(['masterEnabled', 'enabledDomains'], (data) => {
   updateStatus(data);
   if (isExtensionEnabled) {
     injectUnikornLinks();
@@ -10,7 +10,7 @@ chrome.storage.sync.get(['masterEnabled', 'disabledDomains'], (data) => {
 
 // Create realtime bindings ensuring changes immediately reflect physically in the DOM
 chrome.storage.onChanged.addListener(() => {
-  chrome.storage.sync.get(['masterEnabled', 'disabledDomains'], (data) => {
+  chrome.storage.sync.get(['masterEnabled', 'enabledDomains'], (data) => {
     let wasEnabled = isExtensionEnabled;
     updateStatus(data);
     
@@ -29,8 +29,10 @@ chrome.storage.onChanged.addListener(() => {
 
 function updateStatus(data) {
   let master = data.masterEnabled !== false;
-  let disabled = data.disabledDomains || [];
-  isExtensionEnabled = master && !disabled.includes(window.location.hostname);
+  let enabledWhitelist = data.enabledDomains || [];
+  
+  // Extension explicitly disabled globally by default unless added to White List payload
+  isExtensionEnabled = master && enabledWhitelist.includes(window.location.hostname);
 }
 
 function injectUnikornLinks() {
