@@ -3,7 +3,11 @@
   "name": "Unikorn Phone Search",
   "version": "1.0.0",
   "description": "Automatically parses phone numbers from the external dashboard and injects one-click Unikorn CRM searches.",
-  "permissions": ["activeTab", "tabs"],
+  "permissions": ["activeTab", "tabs", "storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon48.png"
+  },
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
